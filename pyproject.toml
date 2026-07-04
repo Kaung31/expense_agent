@@ -1,0 +1,75 @@
+[project]
+name = "expense-idp"
+version = "0.1.0"
+description = "Agentic Intelligent Document Processing pipeline for expense reports (Azure + Microsoft Agent Framework)."
+requires-python = ">=3.11,<3.14"
+dependencies = [
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+# The agent/orchestration + Azure layer. Kept optional so the deterministic core
+# (contracts, checks, tests) installs and runs with zero cloud dependencies.
+agents = [
+    "agent-framework",
+    "agent-framework-azure-ai",
+    "azure-identity>=1.17",
+    "azure-search-documents>=11.5",
+    "azure-cosmos>=4.7",
+]
+observability = [
+    "azure-monitor-opentelemetry>=1.6",
+]
+web = [
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",   # multipart/form-data uploads (drag-drop receipts)
+]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "httpx>=0.27",               # FastAPI TestClient transport
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# Flat layout: these top-level modules match the guide's repo structure (§4).
+packages = ["expense_extractor", "agents", "tools", "workflow", "webapp"]
+
+[tool.setuptools.package-data]
+webapp = ["static/*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["UP042"]        # keep `class X(str, Enum)` — intentional for pydantic/JSON-schema compatibility
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]      # test data lines can run long for readability
+"demo.py" = ["E501"]      # formatted console-output lines
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+explicit_package_bases = true   # flat layout: treat repo root as the package base so `mypy .` works
+plugins = ["pydantic.mypy"]
+
+# agent-framework packages publish pre-release only (rc/beta); tell uv to allow them.
+[tool.uv]
+prerelease = "allow"

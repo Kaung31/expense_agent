@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expense IDP</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>🧾 Expense IDP</h1>
+    <nav>
+      <button class="tab active" data-tab="submit">Submit</button>
+      <button class="tab" data-tab="queue">Approval queue <span id="queue-badge" class="badge hidden">0</span></button>
+      <button class="tab" data-tab="history">History</button>
+      <button class="tab" data-tab="dashboard">Dashboard</button>
+    </nav>
+    <span id="backend-pill" class="pill">…</span>
+  </header>
+
+  <main>
+    <!-- Submit -->
+    <section id="tab-submit" class="panel active">
+      <div id="dropzone" tabindex="0">
+        <p><strong>Drop a receipt here</strong> or click to choose a file</p>
+        <p class="hint">jpg / png / webp / pdf — the pipeline extracts, checks policy, and routes it</p>
+        <input type="file" id="file-input" accept="image/*,.pdf" hidden>
+      </div>
+      <div class="field">
+        <label for="submitter">Submitter</label>
+        <input type="text" id="submitter" value="web-user@corp.com">
+      </div>
+      <div id="submit-progress" class="hidden">
+        <div class="spinner"></div><span id="progress-text">Running the pipeline…</span>
+      </div>
+      <div id="submit-result" class="hidden"></div>
+    </section>
+
+    <!-- Approval queue -->
+    <section id="tab-queue" class="panel">
+      <h2>Escalated claims waiting for you</h2>
+      <div id="queue-list" class="cards"></div>
+      <p id="queue-empty" class="hint hidden">Nothing waiting — escalated claims appear here.</p>
+    </section>
+
+    <!-- History -->
+    <section id="tab-history" class="panel">
+      <h2>Processed expenses</h2>
+      <table id="history-table">
+        <thead>
+          <tr><th>Vendor</th><th>Date</th><th>Category</th><th>Amount</th><th>Risk</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+      <p id="history-empty" class="hint hidden">No expenses yet — submit a receipt first.</p>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="tab-dashboard" class="panel">
+      <h2>Spend dashboard</h2>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-num" id="stat-total">–</div><div class="stat-label">claims</div></div>
+        <div class="stat"><div class="stat-num" id="stat-rate">–</div><div class="stat-label">approval rate</div></div>
+        <div class="stat"><div class="stat-num" id="stat-flagged">–</div><div class="stat-label">flagged</div></div>
+        <div class="stat"><div class="stat-num" id="stat-pending">–</div><div class="stat-label">pending approval</div></div>
+      </div>
+      <h3>Spend by category (approved)</h3>
+      <div id="category-bars" class="bars"></div>
+      <h3>Claims by status</h3>
+      <div id="status-bars" class="bars"></div>
+    </section>
+  </main>
+
+  <!-- Record detail modal -->
+  <dialog id="detail-modal">
+    <div id="detail-content"></div>
+    <button id="detail-close" class="secondary">Close</button>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

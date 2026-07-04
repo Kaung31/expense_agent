@@ -1,0 +1,21 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "expense-idp-web",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "uvicorn", "webapp.main:app", "--port", "8000"],
+      "port": 8000
+    },
+    {
+      "name": "expense-idp-web-mock",
+      "runtimeExecutable": ".venv/bin/python",
+      "runtimeArgs": ["-m", "uvicorn", "webapp.main:app", "--port", "8001"],
+      "port": 8001,
+      "env": {
+        "EXPENSE_MODEL_BACKEND": "mock",
+        "LOCAL_STORE_PATH": ".localstore/web-mock.json"
+      }
+    }
+  ]
+}
