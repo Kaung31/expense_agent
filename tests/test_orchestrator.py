@@ -4,11 +4,8 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import pytest
-
 from agents.orchestrator import (
-    AutoApproveGateway,
-    AutoRejectGateway,
+    ApprovalOutcome,
     Orchestrator,
     RouteKind,
 )
@@ -72,25 +69,19 @@ def test_pending_when_no_human_response_yet():
     assert decision.route is RouteDecision.PENDING_APPROVAL
 
 
-@pytest.mark.asyncio
-async def test_escalation_resumes_approved():
+def test_escalation_finalizes_approved():
     orch = Orchestrator(settings())
-    decision = await orch.orchestrate(
-        result(total="500.00"), risk(level=RiskLevel.HIGH, total_base="500.00"),
-        record_id="rec-1", gateway=AutoApproveGateway("boss@corp.com"),
-    )
+    outcome = ApprovalOutcome(approved=True, approver="boss@corp.com", comment="ok")
+    decision = orch.finalize(RouteKind.ESCALATE, "needs approval", record_id="rec-1", approval=outcome)
     assert decision.approved
     assert decision.route is RouteDecision.ESCALATED_APPROVED
     assert decision.approver == "boss@corp.com"
 
 
-@pytest.mark.asyncio
-async def test_escalation_resumes_rejected():
+def test_escalation_finalizes_rejected():
     orch = Orchestrator(settings())
-    decision = await orch.orchestrate(
-        result(total="500.00"), risk(level=RiskLevel.HIGH, total_base="500.00"),
-        record_id="rec-1", gateway=AutoRejectGateway("boss@corp.com"),
-    )
+    outcome = ApprovalOutcome(approved=False, approver="boss@corp.com", comment="no")
+    decision = orch.finalize(RouteKind.ESCALATE, "needs approval", record_id="rec-1", approval=outcome)
     assert not decision.approved
     assert decision.route is RouteDecision.REJECTED
     assert decision.approver == "boss@corp.com"
